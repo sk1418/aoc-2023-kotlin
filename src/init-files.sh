@@ -1,14 +1,21 @@
 #!/bin/bash
-seq -f %02g 1 25 | awk -v q='"' '{d2=$0; d=1*$0;
-    # clone kt files: Day0x.kt
-    printf "cp template.kt Day%s.kt\n", d2
+awk -v q='"' 'BEGIN{
+    for (d=1; d<=25; d++){
+        d2 = d<10? "0"d : d
 
-    # clone input files: inputs/Day0x.txt and inputs/Day0x-test.txt
-    printf "touch inputs/Day%s.txt; touch inputs/Day%s-test.txt\n", d2, d2
+        printf "printf %sInitializing the source and inputs for Day%s ... %s\n", q, d2, q
+        # clone kt files: Day0x.kt
+        printf "cp template.kt Day%s.kt\n", d2
 
-    #fix the day numbers in kt files. template has '1x'
-    printf "sed -i %s1 s#day/1x#day/%s#%s Day%s.kt\n", q, d, q, d2
-    printf "sed -i %ss#Day1x#Day%s#%s Day%s.kt\n", q, d2, q, d2
+        # clone input files: inputs/Day0x.txt and inputs/Day0x-test.txt
+        printf "touch inputs/Day%s.txt; touch inputs/Day%s-test.txt\n", d2, d2
+
+        #fix the day numbers in kt files. template has '1x'
+        printf "sed -i %s1 s#day/1x#day/%s#%s Day%s.kt\n", q, d, q, d2
+        printf "sed -i %ss#Day1x#Day%s#%s Day%s.kt\n", q, d2, q, d2
+
+        printf "echo %sDone%s\n", q, q
+    }
 }'
 
 # pipe to "sh" if output looks ok
