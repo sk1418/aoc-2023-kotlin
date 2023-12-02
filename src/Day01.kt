@@ -10,9 +10,7 @@ fun main() {
 
     fun part1(input: List<String>): Long {
         return input.sumOf {
-            it.filter { c -> c.isDigit() }.let { s ->
-                "${s.first()}${s.last()}".toLong()
-            }
+            it.filter { c -> c.isDigit() }.let { s -> "${s.first()}${s.last()}".toLong() }
         }
     }
 
@@ -32,9 +30,7 @@ fun main() {
         return input.sumOf { line ->
             var myLine = line
             repMap.forEach { (k, v) -> myLine = myLine.replace(k, v) }
-            myLine.filter { c -> c.isDigit() }.let { s ->
-                "${s.first()}${s.last()}".toLong()
-            }
+            myLine.filter { c -> c.isDigit() }.let { s -> "${s.first()}${s.last()}".toLong() }
         }
     }
 
