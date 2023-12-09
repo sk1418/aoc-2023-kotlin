@@ -5,17 +5,26 @@ fun main() {
     val input = readInput(today)
     val testInput = readTestInput(today)
 
-    fun part1(input: List<String>): Long {
-        return 0
+    fun toIntLists(input: List<String>) = input.map { line -> line.split(" +".toRegex()).map { it.toInt() } }
+
+    fun findPrediction1(ints: List<Int>): Int {
+        return ints.last() + if (ints.any { it != 0 })
+            findPrediction1(ints.windowed(size = 2) { it[1] - it[0] })
+        else 0
     }
 
-    fun part2(input: List<String>): Long {
-        return 0
+    fun findPrediction2(ints: List<Int>): Int {
+        return ints.first() - if (ints.any { it != 0 })
+            findPrediction2(ints.windowed(size = 2) { it[1] - it[0] })
+        else 0
     }
 
-    chkTestInput(part1(testInput), 0L, Part1)
+    fun part1(input: List<String>): Int = toIntLists(input).sumOf { findPrediction1(it) }
+    fun part2(input: List<String>): Int = toIntLists(input).sumOf { findPrediction2(it) }
+
+    chkTestInput(part1(testInput), 114, Part1)
     println("[Part1]: ${part1(input)}")
 
-    chkTestInput(part2(testInput), 0L, Part2)
+    chkTestInput(part2(testInput), 2, Part2)
     println("[Part2]: ${part2(input)}")
 }
