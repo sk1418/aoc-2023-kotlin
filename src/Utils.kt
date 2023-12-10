@@ -29,3 +29,7 @@ fun chkTestInput(actual: String, expect: String, part: String) {
         check(actual == expect)
     }
 }
+
+class Point<T:Any>( val x: Int, val y: Int, val v: T )
+
+open class Matrix<T:Any>(val maxX:Int, val maxY:Int, points:Map<Pair<Int,Int>, T>)
