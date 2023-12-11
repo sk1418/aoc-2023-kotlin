@@ -11,11 +11,13 @@ fun main() {
 
     fun calcLengths(input: List<String>, expansionRate: Int = 2): Long {
         val emptyRows = mutableListOf<Int>()
-        val emptyCols = mutableListOf<Int>()
+        val emptyCols = MutableList(input.size) { it }
 
         val matrix = input.map { it.toList() }
-        matrix.forEachIndexed { i, row -> if ('#' !in row) emptyRows += i }
-        matrix.transpose().forEachIndexed { i, chars -> if ('#' !in chars) emptyCols += i }
+        matrix.forEachIndexed { i, row ->
+            if ('#' !in row) emptyRows += i
+            emptyCols -= row.indices.filter { idx -> row[idx] == '#' }.toSet()
+        }
 
         val galaxies = mutableListOf<Pair<Int, Int>>()
         matrix.forEachIndexed { y, line -> line.forEachIndexed { x, c -> if (c == '#') galaxies += x to y } }
@@ -46,7 +48,7 @@ fun main() {
     chkTestInput(part1(testInput), 374L, Part1)
     println("[Part1]: ${part1(input)}")
 
-    chkTestInput(part2(testInput),82000210L, Part2)
+    chkTestInput(part2(testInput), 82000210L, Part2)
     println("[Part2]: ${part2(input)}")
 }
 
@@ -54,11 +56,7 @@ class PointPair(val pair1: Pair<Int, Int>, val pair2: Pair<Int, Int>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PointPair) return false
-
-        if (pair1 == other.pair1 && pair2 == other.pair2) return true
-        if (pair1 == other.pair2 && pair2 == other.pair1) return true
-
-        return false
+        return (pair1 == other.pair1 && pair2 == other.pair2) || (pair1 == other.pair2 && pair2 == other.pair1)
     }
 
     override fun hashCode(): Int {
