@@ -30,7 +30,11 @@ fun chkTestInput(actual: String, expect: String, part: String) {
     }
 }
 
-
+fun <T> List<List<T>>.transpose(): List<List<T>> {
+    val result = (first().indices).map { mutableListOf<T>() }.toMutableList()
+    forEach { list -> result.zip(list).forEach { it.first.add(it.second) } }
+    return result
+}
 class MutableNotNullMap<K, V>(private val map: MutableMap<K, V>) : MutableMap<K, V> by map {
     override operator fun get(key: K): V {
         return checkNotNull( map[key]){"Key ($key) not found in the NeverNullMap"}
