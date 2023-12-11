@@ -23,12 +23,12 @@ fun main() {
                 }
             }
         }
-        return MatrixDay10(start, input[0].lastIndex, input.lastIndex, points)
+        return MatrixDay10(start, input[0].lastIndex, input.lastIndex, NotNullMap(points.toMap()))
     }
 
     fun part1(input: List<String>): Int {
         val matrix = toMatrix(input)
-        return matrix.move().size / 2
+        return matrix.startMoving().size / 2
     }
 
     /**
@@ -45,15 +45,13 @@ fun main() {
      */
     fun part2(input: List<String>): Int {
         val matrix = toMatrix(input)
-        val loop = matrix.move().toSet()
+        val loop = matrix.startMoving().toSet()
         return (matrix.points.keys - loop).map { p ->
             var intersectCnt = 0
             var myX = p.first
             while (myX < matrix.maxX) {
                 myX++
-                (myX to p.second).also {
-                    intersectCnt += if (it in loop && matrix.points[it]!! !in "L-J") 1 else 0
-                }
+                intersectCnt += (myX to p.second).let { if (it in loop && matrix.points[it] !in "L-J") 1 else 0 }
             }
             intersectCnt % 2 == 1
         }.count { it }
@@ -69,49 +67,39 @@ fun main() {
 enum class Direction { Up, Down, Left, Right }
 
 
-class MatrixDay10(val start: Pair<Int, Int>, val maxX: Int, val maxY: Int, val points: Map<Pair<Int, Int>, Char>) { //: Matrix<Char>(maxX, maxY, points) {
-    private var current = start
-    private var move: Direction
-    val path = mutableListOf(start)
-
-    init {
-        move = if (points[current.left()]!! in "L-F") {
-            Left
-        } else if (points[current.right()]!! in "J-7") {
-            Right
-        } else if (points[current.up()]!! in "|F7") {
-            Up
-        } else if (points[current.down()]!! in "|JL") {
-            Down
-        } else {
-            throw IllegalStateException("Invalid start point")
-        }
-        current = start.move(move).also { path += it }
+class MatrixDay10(start: Pair<Int, Int>, val maxX: Int, val maxY: Int, val points: NotNullMap<Pair<Int, Int>, Char>) {
+    private lateinit var move: Direction
+    private val loop = mutableListOf(start)
+    private var current = (if (points[start.left()] in "L-F") {
+        start.left()
+    } else if (points[start.right()] in "J-7") {
+        start.right()
+    } else if (points[start.up()] in "|F7") {
+        start.up()
+    } else if (points[start.down()] in "|JL") {
+        start.down()
+    } else {
+        throw IllegalStateException("Invalid start point")
+    }).also {
+        loop += it
     }
 
-    fun move(): MutableList<Pair<Int, Int>> {
-        while (points[current]!! != 'S') {
-            current = toNext()
-            path += current
+    fun startMoving(): MutableList<Pair<Int, Int>> {
+        while (points[current] != 'S') {
+            current = next()
+            loop += current
         }
-        return path
+        return loop
     }
 
     fun Pair<Int, Int>.up(): Pair<Int, Int> = (first to ((second - 1).takeIf { it >= 0 } ?: 0)).also { move = Up }
     fun Pair<Int, Int>.down(): Pair<Int, Int> = (first to ((second + 1).takeIf { it <= maxY } ?: maxY)).also { move = Down }
     fun Pair<Int, Int>.left(): Pair<Int, Int> = (((first - 1).takeIf { it >= 0 } ?: 0) to second).also { move = Left }
     fun Pair<Int, Int>.right(): Pair<Int, Int> = (((first + 1).takeIf { it <= maxX } ?: maxX) to second).also { move = Right }
-    fun Pair<Int, Int>.move(direction: Direction): Pair<Int, Int> =
-      when (direction) {
-          Up -> up()
-          Down -> down()
-          Left -> left()
-          Right -> right()
-      }
 
-    fun toNext(): Pair<Int, Int> {
+    fun next(): Pair<Int, Int> {
         return with(current) {
-            when (val curChar = points[current]!!) {
+            when (points[current]) {
                 'F' -> if (move == Left) down() else right()
                 '7' -> if (move == Right) down() else left()
                 'J' -> if (move == Right) up() else left()

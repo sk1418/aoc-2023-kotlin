@@ -30,6 +30,16 @@ fun chkTestInput(actual: String, expect: String, part: String) {
     }
 }
 
-class Point<T:Any>( val x: Int, val y: Int, val v: T )
+
+class MutableNotNullMap<K, V>(private val map: MutableMap<K, V>) : MutableMap<K, V> by map {
+    override operator fun get(key: K): V {
+        return checkNotNull( map[key]){"Key ($key) not found in the NeverNullMap"}
+    }
+}
+class NotNullMap<K, V>(private val map: Map<K, V>) : Map<K, V> by map {
+    override operator fun get(key: K): V {
+        return checkNotNull( map[key]){"Key ($key) not found in the NeverNullMap"}
+    }
+}
 
 open class Matrix<T:Any>(val maxX:Int, val maxY:Int, points:Map<Pair<Int,Int>, T>)
