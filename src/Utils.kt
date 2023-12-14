@@ -46,4 +46,5 @@ class NotNullMap<K, V>(private val map: Map<K, V>) : Map<K, V> by map {
     }
 }
 
+fun List<Char>.joinChars() = joinToString(separator = ""){"$it"}
 open class Matrix<T:Any>(val maxX:Int, val maxY:Int, points:Map<Pair<Int,Int>, T>)
