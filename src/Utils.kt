@@ -1,3 +1,4 @@
+import Direction.*
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -35,16 +36,45 @@ fun <T> List<List<T>>.transpose(): List<List<T>> {
     forEach { list -> result.zip(list).forEach { it.first.add(it.second) } }
     return result
 }
+
 class MutableNotNullMap<K, V>(private val map: MutableMap<K, V>) : MutableMap<K, V> by map {
     override operator fun get(key: K): V {
-        return checkNotNull( map[key]){"Key ($key) not found in the NeverNullMap"}
-    }
-}
-class NotNullMap<K, V>(private val map: Map<K, V>) : Map<K, V> by map {
-    override operator fun get(key: K): V {
-        return checkNotNull( map[key]){"Key ($key) not found in the NeverNullMap"}
+        return checkNotNull(map[key]) { "Key ($key) not found in the NeverNullMap" }
     }
 }
 
-fun List<Char>.joinChars() = joinToString(separator = ""){"$it"}
-open class Matrix<T:Any>(val maxX:Int, val maxY:Int, points:Map<Pair<Int,Int>, T>)
+class NotNullMap<K, V>(private val map: Map<K, V>) : Map<K, V> by map {
+    override operator fun get(key: K): V {
+        return checkNotNull(map[key]) { "Key ($key) not found in the NeverNullMap" }
+    }
+}
+
+fun List<Char>.joinChars() = joinToString(separator = "") { "$it" }
+open class Matrix<T : Any>(val maxX: Int, val maxY: Int, open val points: Map<Pair<Int, Int>, T>) {
+
+    protected fun Pair<Int, Int>.move(direction: Direction) = when (direction) {
+        Up -> first to (second - 1)
+        Down -> first to (second + 1)
+        Left -> (first - 1) to second
+        Right -> (first + 1) to second
+    }
+
+    protected fun Pair<Int, Int>.safeMove(direction: Direction) = when (direction) {
+        Up -> (first to ((second - 1).takeIf { it >= 0 } ?: 0))
+        Down -> (first to ((second + 1).takeIf { it <= maxY } ?: maxY))
+        Left -> (((first - 1).takeIf { it >= 0 } ?: 0) to second)
+        Right -> (((first + 1).takeIf { it <= maxX } ?: maxX) to second)
+    }
+
+}
+
+enum class Direction {
+    Up, Down, Left, Right;
+
+    fun turn90() = dirList.indexOf(this).let { if (it == 3) dirList.first() else dirList[it + 1] }
+    fun turn90Back() = dirList.indexOf(this).let { if (it == 0) dirList.last() else dirList[it - 1] }
+
+    companion object {
+        private val dirList = listOf(Left, Up, Right, Down)
+    }
+}

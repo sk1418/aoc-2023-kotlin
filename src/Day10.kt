@@ -1,7 +1,4 @@
-import Direction.Down
-import Direction.Left
-import Direction.Right
-import Direction.Up
+import Direction.*
 
 // https://adventofcode.com/2023/day/10
 fun main() {
@@ -64,25 +61,24 @@ fun main() {
     println("[Part2]: ${part2(input)}")
 }
 
-enum class Direction { Up, Down, Left, Right }
-
-
-class MatrixDay10(start: Pair<Int, Int>, val maxX: Int, val maxY: Int, val points: NotNullMap<Pair<Int, Int>, Char>) {
+class MatrixDay10(start: Pair<Int, Int>, maxX: Int, maxY: Int, override val points: NotNullMap<Pair<Int, Int>, Char>) : Matrix<Char>(maxX, maxY, points) {
     private lateinit var move: Direction
     private val loop = mutableListOf(start)
-    private var current = (if (points[start.left()] in "L-F") {
-        start.left()
-    } else if (points[start.right()] in "J-7") {
-        start.right()
-    } else if (points[start.up()] in "|F7") {
-        start.up()
-    } else if (points[start.down()] in "|JL") {
-        start.down()
+    private var current = (if (points[movePoint(Left, start)] in "L-F") {
+        movePoint(Left, start)
+    } else if (points[movePoint(Right, start)] in "J-7") {
+        movePoint(Right, start)
+    } else if (points[movePoint(Up, start)] in "|F7") {
+        movePoint(Up, start)
+    } else if (points[movePoint(Down, start)] in "|JL") {
+        movePoint(Down, start)
     } else {
         throw IllegalStateException("Invalid start point")
     }).also {
         loop += it
     }
+
+    fun movePoint(direction: Direction, point: Pair<Int, Int> = current): Pair<Int, Int> = point.safeMove(direction).also { move = direction }
 
     fun startMoving(): MutableList<Pair<Int, Int>> {
         while (points[current] != 'S') {
@@ -92,22 +88,15 @@ class MatrixDay10(start: Pair<Int, Int>, val maxX: Int, val maxY: Int, val point
         return loop
     }
 
-    fun Pair<Int, Int>.up(): Pair<Int, Int> = (first to ((second - 1).takeIf { it >= 0 } ?: 0)).also { move = Up }
-    fun Pair<Int, Int>.down(): Pair<Int, Int> = (first to ((second + 1).takeIf { it <= maxY } ?: maxY)).also { move = Down }
-    fun Pair<Int, Int>.left(): Pair<Int, Int> = (((first - 1).takeIf { it >= 0 } ?: 0) to second).also { move = Left }
-    fun Pair<Int, Int>.right(): Pair<Int, Int> = (((first + 1).takeIf { it <= maxX } ?: maxX) to second).also { move = Right }
-
     fun next(): Pair<Int, Int> {
-        return with(current) {
-            when (points[current]) {
-                'F' -> if (move == Left) down() else right()
-                '7' -> if (move == Right) down() else left()
-                'J' -> if (move == Right) up() else left()
-                'L' -> if (move == Left) up() else right()
-                '|' -> if (move == Up) up() else down()
-                '-' -> if (move == Left) left() else right()
-                else -> throw java.lang.IllegalStateException("cannot move further")
-            }
+        return when (points[current]) {
+            'F' -> if (move == Left) movePoint(Down) else movePoint(Right)
+            '7' -> if (move == Right) movePoint(Down) else movePoint(Left)
+            'J' -> if (move == Right) movePoint(Up) else movePoint(Left)
+            'L' -> if (move == Left) movePoint(Up) else movePoint(Right)
+            '|' -> if (move == Up) movePoint(move) else movePoint(Down)
+            '-' -> if (move == Left) movePoint(move) else movePoint(Right)
+            else -> throw java.lang.IllegalStateException("cannot move further")
         }
     }
 }
