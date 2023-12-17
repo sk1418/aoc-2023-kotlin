@@ -69,12 +69,7 @@ open class Matrix<T : Any>(val maxX: Int, val maxY: Int, open val points: Map<Pa
 }
 
 enum class Direction {
-    Up, Down, Left, Right;
-
-    fun turn90() = dirList.indexOf(this).let { if (it == 3) dirList.first() else dirList[it + 1] }
-    fun turn90Back() = dirList.indexOf(this).let { if (it == 0) dirList.last() else dirList[it - 1] }
-
-    companion object {
-        private val dirList = listOf(Left, Up, Right, Down)
-    }
+    Left, Up, Right, Down;
+    fun turn90() = ordinal.let { entries[if (it == 3) 0 else it + 1] }
+    fun turn90Back() = ordinal.let { entries[if (it == 0) 3 else it - 1] }
 }
