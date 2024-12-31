@@ -1,19 +1,25 @@
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "2.0.21"
 }
 
 repositories {
     mavenCentral()
 }
 
+java.setTargetCompatibility(22)
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_22
+    }
+}
 tasks {
     sourceSets {
         main {
-            java.srcDirs("src")
+            kotlin.srcDirs("src")
         }
     }
-
     wrapper {
-        gradleVersion = "7.3"
+        gradleVersion = "8.11.1"
     }
 }
